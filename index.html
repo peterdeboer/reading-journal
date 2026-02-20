@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Reading Journal</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2316130f'/%3E%3Cpath d='M7 8 Q7 7 8 7 L15 7 L15 25 L8 25 Q7 25 7 24 Z' fill='%23c8923a'/%3E%3Cpath d='M17 7 L24 7 Q25 7 25 8 L25 24 Q25 25 24 25 L17 25 Z' fill='%23e0a84a'/%3E%3Crect x='15' y='7' width='2' height='18' fill='%2316130f'/%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -22,7 +23,6 @@
     --green: #4a7a5a;
     --red: #8a3a3a;
     --expand-bg: #1a1610;
-    
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -97,7 +97,6 @@
     letter-spacing: 0.01em;
   }
   .btn-add:hover { background: var(--amber-light); }
-
   .btn-add svg { width: 16px; height: 16px; }
 
   main { padding: 0 4rem 4rem; }
@@ -217,7 +216,6 @@
   .book-card {
     border-bottom: 1px solid var(--border);
     overflow: hidden;
-    transition: background 0.15s;
     border-left: 2px solid transparent;
     transition: border-left-color 0.2s;
   }
@@ -256,12 +254,13 @@
     text-transform: uppercase;
   }
 
-  /* Empty state SVG illustration */
+  /* Empty state */
   .empty-illustration {
     margin: 0 auto 1.5rem;
     opacity: 0.3;
     display: block;
   }
+  .empty-state {
     text-align: center;
     padding: 5rem 2rem;
     color: var(--text-dim);
@@ -276,7 +275,6 @@
   .empty-state p { font-size: 0.95rem; }
 
   /* Book card */
-
   .book-row {
     display: grid;
     grid-template-columns: 2fr 1.5fr 1.1fr 1.1fr 0.8fr 0.8fr 1.6rem;
@@ -542,9 +540,7 @@
     margin-bottom: 1.75rem;
   }
 
-  .form-group {
-    margin-bottom: 1.25rem;
-  }
+  .form-group { margin-bottom: 1.25rem; }
   .form-group label {
     display: block;
     font-size: 0.78rem;
@@ -671,6 +667,7 @@
     .form-row { grid-template-columns: 1fr; }
     .stats-bar { padding-left: 1.5rem; padding-right: 1.5rem; gap: 1.5rem; }
   }
+
   .import-choice {
     display: flex;
     flex-direction: column;
@@ -716,12 +713,107 @@
     justify-content: center;
   }
 
-
+  /* Login screen */
+  #login-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 70% 50% at 12% 0%, #3a280a50 0%, transparent 100%),
+      radial-gradient(ellipse 60% 40% at 88% 8%, #1a2a1a30 0%, transparent 100%),
+      radial-gradient(ellipse 80% 60% at 50% 45%, #251a0820 0%, transparent 100%);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  #login-screen h1 {
+    font-family: 'Playfair Display', serif;
+    color: var(--cream);
+    font-size: 2.2rem;
+    font-weight: 400;
+    margin-bottom: 0.25rem;
+  }
+  #login-screen .login-subtitle {
+    font-style: italic;
+    color: var(--cream-dim);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+  #login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 300px;
+  }
+  #login-form p {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 0.95rem;
+    text-align: center;
+    margin-bottom: 0.25rem;
+  }
+  #login-email {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    color: var(--cream);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #login-email:focus { border-color: var(--amber); }
+  #login-btn {
+    padding: 0.65rem;
+    background: var(--amber);
+    color: #16130f;
+    border: none;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #login-btn:hover { background: var(--amber-light); }
+  #login-btn:disabled { opacity: 0.6; cursor: default; }
+  #login-sent {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  #login-sent p:first-child {
+    font-family: 'Playfair Display', serif;
+    color: var(--cream);
+    font-size: 1.2rem;
+    font-style: italic;
+  }
+  #login-sent p { color: var(--text-dim); font-size: 0.95rem; }
 </style>
 </head>
 <body>
 
-
+<!-- Login Screen -->
+<div id="login-screen">
+  <h1>Reading Journal</h1>
+  <p class="login-subtitle">A record of books read &amp; listened to</p>
+  <div id="login-form">
+    <p>Enter your email to receive a login link</p>
+    <input id="login-email" type="email" placeholder="your@email.com"
+      onkeydown="if(event.key==='Enter') sendMagicLink()"/>
+    <button id="login-btn" onclick="sendMagicLink()">Send login link</button>
+  </div>
+  <div id="login-sent">
+    <p>Check your email</p>
+    <p>Click the link we sent you to sign in.</p>
+  </div>
+</div>
 
 <header>
   <div class="header-left">
@@ -741,6 +833,9 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     </button>
     <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleImportFile(event)">
+    <button class="btn-icon" onclick="signOut()" title="Sign out">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
     <button class="btn-add" onclick="openModal()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Book
@@ -929,16 +1024,113 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  let books = JSON.parse(localStorage.getItem('reading-journal') || '[]');
+  // ── Supabase setup ────────────────────────────────
+  const SUPABASE_URL = 'https://wtiuqfjblgqdsquxkxrh.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable__KN84jpVO-YH2Lgq0DnqeQ_NZgTddWT';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let books = [];
   let sortCol = 'dateRead';
   let sortDir = -1;
   let openCard = null;
   let searchQuery = '';
-  let typeFilter = null; // null | 'Fiction' | 'Non-fiction'
+  let typeFilter = null;
+  let currentUser = null;
 
-  function save() {
-    localStorage.setItem('reading-journal', JSON.stringify(books));
+  // Check session on load
+  sb.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      currentUser = session.user;
+      loadBooks();
+    } else {
+      showLoginScreen();
+    }
+  });
+
+  // React to auth changes (e.g. magic link redirect)
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && !currentUser) {
+      currentUser = session.user;
+      hideLoginScreen();
+      loadBooks();
+    }
+    if (event === 'SIGNED_OUT') {
+      books = [];
+      currentUser = null;
+      render();
+      showLoginScreen();
+    }
+  });
+
+  function showLoginScreen() {
+    document.getElementById('login-screen').style.display = 'flex';
   }
+
+  function hideLoginScreen() {
+    document.getElementById('login-screen').style.display = 'none';
+  }
+
+  async function sendMagicLink() {
+    const email = document.getElementById('login-email').value.trim();
+    if (!email) return;
+    const btn = document.getElementById('login-btn');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.href }
+    });
+    if (error) {
+      btn.textContent = 'Send login link';
+      btn.disabled = false;
+      showToast('Something went wrong: ' + error.message, true);
+    } else {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('login-sent').style.display = 'flex';
+    }
+  }
+
+  async function signOut() {
+    await sb.auth.signOut();
+  }
+
+  // ── Data loading / saving ─────────────────────────
+
+  async function loadBooks() {
+    const { data, error } = await sb
+      .from('books')
+      .select('*')
+      .eq('user_id', currentUser.id);
+    if (error) {
+      showToast('Could not load books: ' + error.message, true);
+      return;
+    }
+    // Map book_id → id for internal use, strip user_id
+    books = (data || []).map(({ book_id, user_id, ...rest }) => ({ id: book_id, ...rest }));
+    render();
+  }
+
+  async function save(booksToSave) {
+    if (!currentUser) return;
+    // Map id → book_id for Supabase, add user_id
+    const rows = (booksToSave || books).map(({ id, ...rest }) => ({
+      book_id: id,
+      user_id: currentUser.id,
+      ...rest
+    }));
+    const { error } = await sb.from('books').upsert(rows, { onConflict: 'book_id' });
+    if (error) showToast('Save error: ' + error.message, true);
+  }
+
+  async function deleteFromDb(bookId) {
+    if (!currentUser) return;
+    const { error } = await sb.from('books').delete()
+      .eq('book_id', bookId)
+      .eq('user_id', currentUser.id);
+    if (error) showToast('Delete error: ' + error.message, true);
+  }
+
+  // ── Sort / filter ─────────────────────────────────
 
   function setSort(col) {
     if (sortCol === col) sortDir *= -1;
@@ -962,7 +1154,6 @@
       if (sortCol === 'rating') {
         const ra = parseInt(a.rating) || 0;
         const rb = parseInt(b.rating) || 0;
-        // Unrated always sink to bottom
         if (ra === 0 && rb === 0) return 0;
         if (ra === 0) return 1;
         if (rb === 0) return -1;
@@ -975,17 +1166,17 @@
     });
   }
 
+  // ── Render ────────────────────────────────────────
+
   function renderStats() {
     const bar = document.getElementById('stats-bar');
     if (books.length === 0) { bar.style.display = 'none'; return; }
     bar.style.display = 'flex';
-
     const thisYear = new Date().getFullYear().toString();
     const rated = books.filter(b => b.rating);
     const avgRating = rated.length
       ? (rated.reduce((s, b) => s + (b.rating || 0), 0) / rated.length).toFixed(1)
       : '—';
-
     document.getElementById('stat-total').textContent = books.length;
     document.getElementById('stat-year').textContent = books.filter(b => (b.dateRead || '').startsWith(thisYear)).length;
     document.getElementById('stat-rating').textContent = avgRating;
@@ -1003,7 +1194,6 @@
 
   function render() {
     renderStats();
-    // Update sort arrows
     ['title','author','dateRead','pubDate','type','rating'].forEach(col => {
       const el = document.getElementById('arr-' + col);
       const btn = document.querySelector(`[data-col="${col}"]`);
@@ -1020,10 +1210,6 @@
     const sorted = getSorted();
     const list = document.getElementById('books-list');
 
-    const countEl = document.getElementById('book-count');
-    if (countEl) countEl.textContent = books.length === 0 ? '' : books.length === 1 ? '1 book' : `${books.length} books`;
-
-    // Sync filter buttons
     document.getElementById('filter-fiction').className = 'filter-btn' + (typeFilter === 'Fiction' ? ' active-fiction' : '');
     document.getElementById('filter-nonfiction').className = 'filter-btn' + (typeFilter === 'Non-fiction' ? ' active-nonfiction' : '');
 
@@ -1124,11 +1310,14 @@
     btnCancel.style.display = 'inline-block';
   }
 
-  function saveNote(id, e) {
+  async function saveNote(id, e) {
     e.stopPropagation();
     const ta = document.getElementById('note-edit-' + id);
     const book = books.find(b => b.id === id);
-    if (book) { book.note = ta.value; save(); }
+    if (book) {
+      book.note = ta.value;
+      await save([book]);
+    }
     render();
   }
 
@@ -1137,27 +1326,15 @@
     render();
   }
 
-  function askDelete(id, e) {
+  async function confirmDelete(id, e) {
     e.stopPropagation();
-    document.getElementById('del-confirm-' + id).classList.add('visible');
-    document.getElementById('btn-delete-' + id).style.display = 'none';
-  }
-
-  function cancelDelete(id, e) {
-    e.stopPropagation();
-    document.getElementById('del-confirm-' + id).classList.remove('visible');
-    document.getElementById('btn-delete-' + id).style.display = 'inline-block';
-  }
-
-  function confirmDelete(id, e) {
-    e.stopPropagation();
+    await deleteFromDb(id);
     books = books.filter(b => b.id !== id);
     if (openCard === id) openCard = null;
-    save();
     render();
   }
 
-  // ── Export / Import ──────────────────────────────
+  // ── Export / Import ───────────────────────────────
   let importBuffer = [];
 
   function exportData() {
@@ -1195,22 +1372,25 @@
     reader.readAsText(file);
   }
 
-  function doImport(mode) {
+  async function doImport(mode) {
     if (mode === 'replace') {
+      // Delete all existing books from Supabase first
+      await sb.from('books').delete().eq('user_id', currentUser.id);
       books = importBuffer;
+      await save();
+      closeImportModal();
+      render();
+      showToast(`Imported ${books.length} book${books.length === 1 ? '' : 's'}.`);
     } else {
       const existingIds = new Set(books.map(b => b.id));
       const newBooks = importBuffer.filter(b => !existingIds.has(b.id));
       books = [...books, ...newBooks];
       const skipped = importBuffer.length - newBooks.length;
+      await save(newBooks);
       closeImportModal();
-      save(); render();
+      render();
       showToast(`Added ${newBooks.length} book${newBooks.length === 1 ? '' : 's'}${skipped ? `, skipped ${skipped} duplicate${skipped === 1 ? '' : 's'}` : ''}.`);
-      return;
     }
-    closeImportModal();
-    save(); render();
-    showToast(`Imported ${books.length} book${books.length === 1 ? '' : 's'}.`);
   }
 
   function closeImportModal() {
@@ -1234,8 +1414,7 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  // ── End Export / Import ───────────────────────────
-
+  // ── Edit modal ────────────────────────────────────
   let editingId = null;
 
   function openEditModal(id, e) {
@@ -1264,7 +1443,7 @@
     if (e.target === document.getElementById('edit-modal-overlay')) closeEditModal();
   }
 
-  function saveEdit() {
+  async function saveEdit() {
     const book = books.find(b => b.id === editingId);
     if (!book) return;
     const title = document.getElementById('e-title').value.trim();
@@ -1275,7 +1454,7 @@
     book.pubDate = document.getElementById('e-pubDate').value;
     book.format = document.getElementById('e-format').value;
     book.type = document.getElementById('e-type').value;
-    save();
+    await save([book]);
     closeEditModal();
     render();
   }
@@ -1290,13 +1469,15 @@
     document.getElementById('edit-del-btn').style.display = 'inline-block';
   }
 
-  function confirmEditDelete() {
+  async function confirmEditDelete() {
+    await deleteFromDb(editingId);
     books = books.filter(b => b.id !== editingId);
     if (openCard === editingId) openCard = null;
-    save();
     closeEditModal();
     render();
   }
+
+  // ── Add book modal ────────────────────────────────
 
   function openModal() {
     document.getElementById('f-dateRead').value = new Date().toISOString().split('T')[0];
@@ -1315,7 +1496,7 @@
     if (e.target === document.getElementById('modal-overlay')) closeModal();
   }
 
-  function addBook() {
+  async function addBook() {
     const title = document.getElementById('f-title').value.trim();
     const author = document.getElementById('f-author').value.trim();
     if (!title) { document.getElementById('f-title').focus(); return; }
@@ -1330,25 +1511,25 @@
       note: ''
     };
     books.push(book);
-    save();
+    await save([book]);
     closeModal();
     openCard = book.id;
     render();
-    // scroll to new card
     setTimeout(() => {
       const el = document.getElementById('card-' + book.id);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 50);
   }
 
+  // ── Rating ────────────────────────────────────────
+
   function setRating(id, val, e) {
     e.stopPropagation();
     const book = books.find(b => b.id === id);
     if (!book) return;
     book.rating = (book.rating === val && val !== 0) ? 0 : val;
-    save();
+    save([book]); // fire and forget — UI updates immediately
 
-    // Update star widget in-place
     const widget = document.getElementById('stars-' + id);
     if (widget) {
       const rating = book.rating;
@@ -1358,8 +1539,6 @@
       });
       const clearBtn = document.getElementById('star-clear-' + id);
       if (clearBtn) clearBtn.className = 'star-clear' + (rating ? ' visible' : '');
-
-      // Animate the clicked star
       if (val > 0) {
         const star = widget.querySelectorAll('.star')[val - 1];
         if (star) {
@@ -1371,7 +1550,6 @@
       }
     }
 
-    // Update the collapsed rating cell in-place
     const card = document.getElementById('card-' + id);
     if (card) {
       const cell = card.querySelector('.book-rating-cell');
@@ -1385,7 +1563,6 @@
         }
       }
     }
-
     renderStats();
   }
 
@@ -1436,5 +1613,3 @@
 </script>
 </body>
 </html>
-
-
