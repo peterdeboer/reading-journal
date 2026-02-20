@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Reading Journal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2316130f'/%3E%3Cpath d='M7 8 Q7 7 8 7 L15 7 L15 25 L8 25 Q7 25 7 24 Z' fill='%23c8923a'/%3E%3Cpath d='M17 7 L24 7 Q25 7 25 8 L25 24 Q25 25 24 25 L17 25 Z' fill='%23e0a84a'/%3E%3Crect x='15' y='7' width='2' height='18' fill='%2316130f'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #16130f;
+    --surface: #1e1a14;
+    --surface2: #26211a;
+    --border: #3a3228;
+    --border-light: #4a4038;
+    --amber: #c8923a;
+    --amber-light: #e0a84a;
+    --cream: #e8dcc8;
+    --cream-dim: #a89880;
+    --text: #d4c4a8;
+    --text-dim: #7a6a58;
+    --green: #4a7a5a;
+    --red: #8a3a3a;
+    --expand-bg: #1a1610;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 17px;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse 70% 50% at 12% 0%, #3a280a50 0%, transparent 100%),
+      radial-gradient(ellipse 60% 40% at 88% 8%, #1a2a1a30 0%, transparent 100%),
+      radial-gradient(ellipse 80% 60% at 50% 45%, #251a0820 0%, transparent 100%),
+      radial-gradient(ellipse 65% 50% at 85% 95%, #0a1e1e38 0%, transparent 100%),
+      radial-gradient(ellipse 55% 40% at 8% 90%, #2e1e0828 0%, transparent 100%);
+    border-top: 3px solid transparent;
+    border-image: linear-gradient(90deg, transparent 0%, #c8923a 30%, #c8923a 70%, transparent 100%) 1;
+  }
+
+  header {
+    padding: 3rem 4rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .header-left h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.6rem;
+    color: var(--cream);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .header-left .subtitle {
+    font-style: italic;
+    color: var(--cream-dim);
+    font-size: 1rem;
+    margin-top: 0.4rem;
+    font-weight: 300;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .book-count {
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+
+  .btn-add {
+    background: var(--amber);
+    color: #16130f;
+    border: none;
+    padding: 0.6rem 1.4rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .btn-add:hover { background: var(--amber-light); }
+
+  .btn-add svg { width: 16px; height: 16px; }
+
+  main { padding: 0 4rem 4rem; }
+
+  .search-wrap {
+    margin-top: 2rem;
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-icon { color: var(--text-dim); flex-shrink: 0; font-size: 0.9rem; }
+  .search-input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--cream);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    font-style: italic;
+    width: 100%;
+    caret-color: var(--amber);
+  }
+  .search-input::placeholder { color: var(--text-dim); }
+  .search-clear {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0;
+    display: none;
+  }
+  .search-clear.visible { display: block; }
+  .search-clear:hover { color: var(--cream); }
+
+  .type-filters {
+    display: flex;
+    gap: 0.4rem;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  .filter-btn {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--text-dim);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.7rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--text-dim); color: var(--text); }
+  .filter-btn.active-fiction { border-color: #7a8a9a; color: #7a8a9a; }
+  .filter-btn.active-nonfiction { border-color: var(--green); color: var(--green); }
+
+  /* Sort Bar */
+  .sort-bar {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.1fr 1.1fr 0.8fr 0.8fr 1.6rem;
+    gap: 0;
+    padding: 1.2rem 1rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+
+  .sort-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0;
+    transition: color 0.2s;
+    text-align: left;
+  }
+  .sort-btn:hover { color: var(--amber); }
+  .sort-btn.active { color: var(--amber); }
+  .sort-arrow { font-size: 0.7rem; opacity: 0.7; }
+
+  /* Decorative rule under title */
+  .header-ornament {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+    opacity: 0.45;
+  }
+  .header-ornament .rule {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--amber));
+  }
+  .header-ornament .rule.right {
+    background: linear-gradient(90deg, var(--amber), transparent);
+  }
+  .header-ornament .diamond {
+    color: var(--amber);
+    font-size: 0.5rem;
+    line-height: 1;
+  }
+
+  /* Left border accent on hover */
+  .book-card {
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    transition: background 0.15s;
+    border-left: 2px solid transparent;
+    transition: border-left-color 0.2s;
+  }
+  .book-card:hover { border-left-color: var(--amber); }
+  .book-card.open { border-left-color: var(--amber); }
+
+  /* Star pulse animation */
+  @keyframes starPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.45); }
+    70%  { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
+  .star-pop { animation: starPop 0.28s ease forwards; }
+
+  /* Divider ornament above sort bar */
+  .list-ornament {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0;
+    opacity: 0.3;
+  }
+  .list-ornament .rule {
+    flex: 1;
+    height: 1px;
+    background: var(--amber);
+  }
+  .list-ornament .glyph {
+    color: var(--amber);
+    font-family: 'Playfair Display', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+
+  /* Empty state SVG illustration */
+  .empty-illustration {
+    margin: 0 auto 1.5rem;
+    opacity: 0.3;
+    display: block;
+  }
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--text-dim);
+  }
+  .empty-state p:first-child {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-style: italic;
+    color: var(--cream-dim);
+    margin-bottom: 0.5rem;
+  }
+  .empty-state p { font-size: 0.95rem; }
+
+  /* Book card */
+
+  .book-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.1fr 1.1fr 0.8fr 0.8fr 1.6rem;
+    gap: 0;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    align-items: center;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .book-row:hover { background: var(--surface); }
+  .book-card.open .book-row { background: var(--surface2); }
+
+  .book-title-cell {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--cream);
+    font-weight: 400;
+    padding-right: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .book-author-cell {
+    font-style: italic;
+    color: var(--text);
+    font-size: 0.95rem;
+    padding-right: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .book-date-cell, .book-pubdate-cell {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .book-type-cell {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .fiction { color: #7a8a9a; }
+  .nonfiction { color: var(--green); }
+
+  .book-rating-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.88rem;
+    color: var(--amber);
+    font-variant-numeric: tabular-nums;
+    padding-left: 0.75rem;
+  }
+  .book-rating-cell .r-star { font-size: 0.75rem; }
+  .book-rating-cell .r-num { color: var(--text-dim); }
+  .book-rating-cell.unrated { color: var(--text-dim); font-size: 0.8rem; font-style: italic; }
+
+  /* Star widget in panel */
+  .star-section { margin-bottom: 0.25rem; }
+  .star-label {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+  }
+  .star-widget {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+  }
+  .star-widget .star {
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--border-light);
+    transition: color 0.1s, transform 0.1s;
+    line-height: 1;
+    user-select: none;
+  }
+  .star-widget .star.lit { color: var(--amber); }
+  .star-widget .star.hover { color: var(--amber-light); transform: scale(1.15); }
+  .star-widget .star-clear {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    cursor: pointer;
+    margin-left: 0.6rem;
+    font-style: italic;
+    font-family: 'Crimson Pro', serif;
+    transition: color 0.15s;
+    display: none;
+  }
+  .star-widget .star-clear.visible { display: inline; }
+  .star-widget .star-clear:hover { color: var(--cream-dim); }
+
+  .book-edit-icon {
+    color: var(--text-dim);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: color 0.15s;
+    cursor: pointer;
+  }
+  .book-edit-icon:hover { color: var(--amber); }
+
+  /* Expanded panel */
+  .book-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: var(--expand-bg);
+    border-top: 1px solid transparent;
+  }
+  .book-card.open .book-panel {
+    max-height: 500px;
+    border-top-color: var(--border);
+  }
+
+  .book-panel-inner {
+    padding: 1.5rem 1rem 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .note-label {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.4rem;
+  }
+
+  .note-view {
+    font-size: 1rem;
+    color: var(--text);
+    font-style: italic;
+    line-height: 1.65;
+    min-height: 2rem;
+    white-space: pre-wrap;
+  }
+  .note-view.empty { color: var(--text-dim); font-style: italic; }
+
+  .note-textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    color: var(--cream);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    font-style: italic;
+    line-height: 1.65;
+    padding: 0.75rem;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    display: none;
+    transition: border-color 0.2s;
+  }
+  .note-textarea:focus { border-color: var(--amber); }
+
+  .panel-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .btn-edit, .btn-save, .btn-cancel {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--cream-dim);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+  .btn-edit:hover { border-color: var(--amber); color: var(--amber); }
+  .btn-save { border-color: var(--amber); color: var(--amber); display: none; }
+  .btn-save:hover { background: var(--amber); color: #16130f; }
+  .btn-cancel:hover { border-color: var(--text-dim); color: var(--text); }
+
+  .btn-delete {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.35rem 0;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .btn-delete:hover { color: #c05050; }
+
+  .delete-confirm {
+    display: none;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--cream-dim);
+    font-style: italic;
+  }
+  .delete-confirm.visible { display: flex; }
+  .btn-confirm-yes {
+    background: none;
+    border: none;
+    color: #c05050;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .btn-confirm-no {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+  }
+  .btn-confirm-no:hover { color: var(--text); }
+
+  .edit-btns { display: flex; gap: 0.5rem; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: #00000088;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    backdrop-filter: blur(2px);
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 480px;
+    transform: translateY(20px);
+    transition: transform 0.25s;
+    box-shadow: 0 30px 80px #00000060;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--cream);
+    font-weight: 400;
+    margin-bottom: 1.75rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  .form-group label {
+    display: block;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.4rem;
+  }
+  .form-group input, .form-group select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border-light);
+    color: var(--cream);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    padding: 0.55rem 0.75rem;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--amber); }
+  .form-group select option { background: var(--surface); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .btn-modal-cancel {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--text-dim);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    padding: 0.6rem 1.3rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-modal-cancel:hover { border-color: var(--text-dim); color: var(--text); }
+
+  .btn-modal-save {
+    background: var(--amber);
+    border: none;
+    color: #16130f;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    padding: 0.6rem 1.4rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-modal-save:hover { background: var(--amber-light); }
+
+  .stat {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+  .stat-value {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.05rem;
+    color: var(--cream-dim);
+    font-weight: 400;
+    font-style: italic;
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .stat-divider {
+    width: 1px;
+    height: 1rem;
+    background: var(--border-light);
+    align-self: center;
+  }
+
+  .btn-icon {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--cream-dim);
+    width: 2.2rem;
+    height: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-icon:hover { border-color: var(--amber); color: var(--amber); }
+  .btn-icon svg { width: 15px; height: 15px; }
+
+  /* Import toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border-light);
+    color: var(--cream);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    padding: 0.65rem 1.4rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    white-space: nowrap;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { border-color: #8a3a3a; color: #e08080; }
+
+  @media (max-width: 700px) {
+    header, main { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .sort-bar, .book-row { grid-template-columns: 2fr 1fr 0.5fr; }
+    .book-author-cell, .book-pubdate-cell { display: none; }
+    .sort-btn:nth-child(2), .sort-btn:nth-child(4) { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+    .stats-bar { padding-left: 1.5rem; padding-right: 1.5rem; gap: 1.5rem; }
+  }
+  .import-choice {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .import-opt {
+    background: var(--bg);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .import-opt:hover { border-color: var(--amber); color: var(--cream); }
+  .import-opt span { font-size: 0.8rem; color: var(--text-dim); font-style: italic; }
+  .import-cancel {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    padding: 0.4rem 0;
+    transition: color 0.15s;
+  }
+
+  /* Stats bar centered */
+  .stats-bar {
+    padding: 1rem 4rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 2.5rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+
+</style>
+</head>
+<body>
+
+
+
+<header>
+  <div class="header-left">
+    <h1>Reading Journal</h1>
+    <p class="subtitle">A record of books read &amp; listened to</p>
+    <div class="header-ornament">
+      <div class="rule"></div>
+      <div class="diamond">◆</div>
+      <div class="rule right"></div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-icon" onclick="exportData()" title="Export journal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </button>
+    <button class="btn-icon" onclick="triggerImport()" title="Import journal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </button>
+    <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleImportFile(event)">
+    <button class="btn-add" onclick="openModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Book
+    </button>
+  </div>
+</header>
+
+<div class="stats-bar" id="stats-bar" style="display:none">
+  <div class="stat">
+    <span class="stat-value" id="stat-total">0</span>
+    <span class="stat-label">Books</span>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat">
+    <span class="stat-value" id="stat-year">0</span>
+    <span class="stat-label">This Year</span>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat">
+    <span class="stat-value" id="stat-rating">—</span>
+    <span class="stat-label">Avg Rating</span>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat">
+    <span class="stat-value" id="stat-fiction">0</span>
+    <span class="stat-label">Fiction</span>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat">
+    <span class="stat-value" id="stat-nonfiction">0</span>
+    <span class="stat-label">Non-fiction</span>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat">
+    <span class="stat-value" id="stat-listened">0</span>
+    <span class="stat-label">Listened</span>
+  </div>
+</div>
+
+<main>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" id="search-input" placeholder="Search by title or author…" oninput="onSearch()" />
+    <button class="search-clear" id="search-clear" onclick="clearSearch()">×</button>
+    <div class="type-filters">
+      <button class="filter-btn" id="filter-fiction" onclick="toggleFilter('Fiction')">Fiction</button>
+      <button class="filter-btn" id="filter-nonfiction" onclick="toggleFilter('Non-fiction')">Non-fiction</button>
+    </div>
+  </div>
+  <div class="list-ornament">
+    <div class="rule"></div>
+    <div class="glyph">· · ·</div>
+    <div class="rule"></div>
+  </div>
+  <div class="sort-bar">
+    <button class="sort-btn" data-col="title" onclick="setSort('title')">Title <span class="sort-arrow" id="arr-title"></span></button>
+    <button class="sort-btn" data-col="author" onclick="setSort('author')">Author <span class="sort-arrow" id="arr-author"></span></button>
+    <button class="sort-btn" data-col="dateRead" onclick="setSort('dateRead')">Date Read <span class="sort-arrow" id="arr-dateRead"></span></button>
+    <button class="sort-btn" data-col="pubDate" onclick="setSort('pubDate')">Published <span class="sort-arrow" id="arr-pubDate"></span></button>
+    <button class="sort-btn" data-col="type" onclick="setSort('type')">Type <span class="sort-arrow" id="arr-type"></span></button>
+    <button class="sort-btn" data-col="rating" onclick="setSort('rating')" style="padding-left:0.75rem">Rating <span class="sort-arrow" id="arr-rating"></span></button>
+    <span></span>
+  </div>
+  <div id="books-list"></div>
+</main>
+
+<!-- Add Book Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <h2>Add a Book</h2>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="f-title" placeholder="e.g. Middlemarch">
+    </div>
+    <div class="form-group">
+      <label>Author</label>
+      <input type="text" id="f-author" placeholder="e.g. George Eliot">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date Read / Finished</label>
+        <input type="date" id="f-dateRead">
+      </div>
+      <div class="form-group">
+        <label>Publication Year</label>
+        <input type="number" id="f-pubDate" placeholder="e.g. 1871" min="1" max="2099">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Format</label>
+        <select id="f-format">
+          <option value="Read">Read</option>
+          <option value="Listened" selected>Listened</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="f-type">
+          <option value="Fiction">Fiction</option>
+          <option value="Non-fiction">Non-fiction</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-modal-save" onclick="addBook()">Add to Journal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Book Modal -->
+<div class="modal-overlay" id="edit-modal-overlay" onclick="handleEditOverlayClick(event)">
+  <div class="modal">
+    <h2>Edit Book</h2>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="e-title" placeholder="e.g. Middlemarch">
+    </div>
+    <div class="form-group">
+      <label>Author</label>
+      <input type="text" id="e-author" placeholder="e.g. George Eliot">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date Read / Finished</label>
+        <input type="date" id="e-dateRead">
+      </div>
+      <div class="form-group">
+        <label>Publication Year</label>
+        <input type="number" id="e-pubDate" placeholder="e.g. 1871" min="1" max="2099">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Format</label>
+        <select id="e-format">
+          <option value="Read">Read</option>
+          <option value="Listened">Listened</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="e-type">
+          <option value="Fiction">Fiction</option>
+          <option value="Non-fiction">Non-fiction</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions" style="justify-content: space-between;">
+      <div style="display:flex;align-items:center;gap:0.6rem;">
+        <div class="delete-confirm" id="edit-del-confirm" style="font-size:0.85rem;color:var(--cream-dim);font-style:italic;">
+          Remove this book?
+          <button class="btn-confirm-yes" onclick="confirmEditDelete()">Yes</button>
+          <button class="btn-confirm-no" onclick="cancelEditDelete()">No</button>
+        </div>
+        <button class="btn-delete" id="edit-del-btn" onclick="askEditDelete()" style="padding:0.35rem 0;">Remove</button>
+      </div>
+      <div style="display:flex;gap:0.75rem;">
+        <button class="btn-modal-cancel" onclick="closeEditModal()">Cancel</button>
+        <button class="btn-modal-save" onclick="saveEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="import-modal-overlay" onclick="handleImportOverlayClick(event)">
+  <div class="modal">
+    <h2>Import Journal</h2>
+    <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:0.5rem;">Found <strong id="import-count" style="color:var(--cream)">0</strong> books in this file. How would you like to import them?</p>
+    <div class="import-choice">
+      <button class="import-opt" onclick="doImport('merge')">
+        Merge with existing
+        <span>Adds new books; skips duplicates by ID</span>
+      </button>
+      <button class="import-opt" onclick="doImport('replace')">
+        Replace everything
+        <span>Deletes your current journal and imports the file</span>
+      </button>
+    </div>
+    <button class="import-cancel" onclick="closeImportModal()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let books = JSON.parse(localStorage.getItem('reading-journal') || '[]');
+  let sortCol = 'dateRead';
+  let sortDir = -1;
+  let openCard = null;
+  let searchQuery = '';
+  let typeFilter = null; // null | 'Fiction' | 'Non-fiction'
+
+  function save() {
+    localStorage.setItem('reading-journal', JSON.stringify(books));
+  }
+
+  function setSort(col) {
+    if (sortCol === col) sortDir *= -1;
+    else { sortCol = col; sortDir = -1; }
+    render();
+  }
+
+  function getSorted() {
+    let filtered = books;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(b =>
+        (b.title || '').toLowerCase().includes(q) ||
+        (b.author || '').toLowerCase().includes(q)
+      );
+    }
+    if (typeFilter) {
+      filtered = filtered.filter(b => b.type === typeFilter);
+    }
+    return [...filtered].sort((a, b) => {
+      if (sortCol === 'rating') {
+        const ra = parseInt(a.rating) || 0;
+        const rb = parseInt(b.rating) || 0;
+        // Unrated always sink to bottom
+        if (ra === 0 && rb === 0) return 0;
+        if (ra === 0) return 1;
+        if (rb === 0) return -1;
+        return (ra - rb) * sortDir;
+      }
+      let va = a[sortCol] || '', vb = b[sortCol] || '';
+      if (sortCol === 'pubDate') { va = parseInt(va) || 0; vb = parseInt(vb) || 0; return (va - vb) * sortDir; }
+      if (sortCol === 'dateRead') { va = va || '0'; vb = vb || '0'; }
+      return va.toString().localeCompare(vb.toString()) * sortDir;
+    });
+  }
+
+  function renderStats() {
+    const bar = document.getElementById('stats-bar');
+    if (books.length === 0) { bar.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+
+    const thisYear = new Date().getFullYear().toString();
+    const rated = books.filter(b => b.rating);
+    const avgRating = rated.length
+      ? (rated.reduce((s, b) => s + (b.rating || 0), 0) / rated.length).toFixed(1)
+      : '—';
+
+    document.getElementById('stat-total').textContent = books.length;
+    document.getElementById('stat-year').textContent = books.filter(b => (b.dateRead || '').startsWith(thisYear)).length;
+    document.getElementById('stat-rating').textContent = avgRating;
+    document.getElementById('stat-fiction').textContent = books.filter(b => b.type === 'Fiction').length;
+    document.getElementById('stat-nonfiction').textContent = books.filter(b => b.type === 'Non-fiction').length;
+    document.getElementById('stat-listened').textContent = books.filter(b => b.format === 'Listened').length;
+  }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    const [y, m, day] = d.split('-');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[parseInt(m)-1]} ${parseInt(day)}, ${y}`;
+  }
+
+  function render() {
+    renderStats();
+    // Update sort arrows
+    ['title','author','dateRead','pubDate','type','rating'].forEach(col => {
+      const el = document.getElementById('arr-' + col);
+      const btn = document.querySelector(`[data-col="${col}"]`);
+      if (!el) return;
+      if (col === sortCol) {
+        el.textContent = sortDir === -1 ? '↓' : '↑';
+        btn.classList.add('active');
+      } else {
+        el.textContent = '';
+        btn.classList.remove('active');
+      }
+    });
+
+    const sorted = getSorted();
+    const list = document.getElementById('books-list');
+
+    const countEl = document.getElementById('book-count');
+    if (countEl) countEl.textContent = books.length === 0 ? '' : books.length === 1 ? '1 book' : `${books.length} books`;
+
+    // Sync filter buttons
+    document.getElementById('filter-fiction').className = 'filter-btn' + (typeFilter === 'Fiction' ? ' active-fiction' : '');
+    document.getElementById('filter-nonfiction').className = 'filter-btn' + (typeFilter === 'Non-fiction' ? ' active-nonfiction' : '');
+
+    if (sorted.length === 0 && searchQuery) {
+      list.innerHTML = `<div class="empty-state"><p>No results.</p><p>Try a different search.</p></div>`;
+      return;
+    }
+    if (sorted.length === 0) {
+      list.innerHTML = `<div class="empty-state">
+        <svg class="empty-illustration" width="72" height="56" viewBox="0 0 72 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="8" width="28" height="40" rx="2" stroke="#c8923a" stroke-width="1.5"/>
+          <line x1="6" y1="8" x2="6" y2="48" stroke="#c8923a" stroke-width="3" stroke-linecap="round"/>
+          <line x1="14" y1="20" x2="28" y2="20" stroke="#c8923a" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <line x1="14" y1="26" x2="28" y2="26" stroke="#c8923a" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <line x1="14" y1="32" x2="22" y2="32" stroke="#c8923a" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <rect x="38" y="8" width="28" height="40" rx="2" stroke="#c8923a" stroke-width="1.5"/>
+          <line x1="66" y1="8" x2="66" y2="48" stroke="#c8923a" stroke-width="3" stroke-linecap="round"/>
+          <line x1="44" y1="20" x2="58" y2="20" stroke="#c8923a" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <line x1="44" y1="26" x2="58" y2="26" stroke="#c8923a" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <line x1="44" y1="32" x2="52" y2="32" stroke="#c8923a" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <path d="M34 8 C34 8 36 28 34 48" stroke="#c8923a" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+          <path d="M38 8 C38 8 36 28 38 48" stroke="#c8923a" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+        <p>Your journal is empty.</p><p>Add your first book to begin.</p>
+      </div>`;
+      return;
+    }
+
+    list.innerHTML = sorted.map(book => {
+      const isOpen = openCard === book.id;
+      const noteEmpty = !book.note || book.note.trim() === '';
+      const rating = book.rating || 0;
+      const ratingCell = rating
+        ? `<div class="book-rating-cell"><span class="r-star">★</span><span class="r-num">${rating}</span></div>`
+        : `<div class="book-rating-cell unrated">—</div>`;
+      const starsHtml = Array.from({length:10}, (_,i) =>
+        `<span class="star ${i < rating ? 'lit' : ''}" data-val="${i+1}" onclick="setRating('${book.id}', ${i+1}, event)" onmouseenter="hoverStars('${book.id}', ${i+1})" onmouseleave="unhoverStars('${book.id}')">★</span>`
+      ).join('') + `<span class="star-clear ${rating ? 'visible' : ''}" id="star-clear-${book.id}" onclick="setRating('${book.id}', 0, event)">clear</span>`;
+      return `
+      <div class="book-card ${isOpen ? 'open' : ''}" id="card-${book.id}">
+        <div class="book-row" onclick="toggleCard('${book.id}')">
+          <div class="book-title-cell">${esc(book.title)}</div>
+          <div class="book-author-cell">${esc(book.author)}</div>
+          <div class="book-date-cell">${formatDate(book.dateRead)}</div>
+          <div class="book-pubdate-cell">${book.pubDate || '—'}</div>
+          <div class="book-type-cell ${book.type === 'Fiction' ? 'fiction' : 'nonfiction'}">${esc(book.type)}</div>
+          ${ratingCell}
+          <div class="book-edit-icon" onclick="openEditModal('${book.id}', event)" title="Edit book details">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+        </div>
+        <div class="book-panel">
+          <div class="book-panel-inner">
+            <div class="star-section">
+              <div class="star-label">Rating</div>
+              <div class="star-widget" id="stars-${book.id}">${starsHtml}</div>
+            </div>
+            <div>
+              <div class="note-label">Notes · <span style="color:var(--text-dim);font-style:italic;font-size:0.8rem;text-transform:none;letter-spacing:0">${esc(book.format || 'Read')}</span></div>
+              <div class="note-view ${noteEmpty ? 'empty' : ''}" id="note-view-${book.id}">${noteEmpty ? 'No notes yet.' : esc(book.note)}</div>
+              <textarea class="note-textarea" id="note-edit-${book.id}" rows="4">${esc(book.note || '')}</textarea>
+            </div>
+            <div class="panel-actions">
+              <div class="edit-btns">
+                <button class="btn-edit" id="btn-edit-${book.id}" onclick="startEdit('${book.id}', event)">Edit</button>
+                <button class="btn-save" id="btn-save-${book.id}" onclick="saveNote('${book.id}', event)">Save</button>
+                <button class="btn-cancel" id="btn-cancel-${book.id}" onclick="cancelEdit('${book.id}', event)" style="display:none">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function toggleCard(id) {
+    openCard = openCard === id ? null : id;
+    render();
+  }
+
+  function startEdit(id, e) {
+    e.stopPropagation();
+    const view = document.getElementById('note-view-' + id);
+    const ta = document.getElementById('note-edit-' + id);
+    const btnEdit = document.getElementById('btn-edit-' + id);
+    const btnSave = document.getElementById('btn-save-' + id);
+    const btnCancel = document.getElementById('btn-cancel-' + id);
+    view.style.display = 'none';
+    ta.style.display = 'block';
+    ta.focus();
+    btnEdit.style.display = 'none';
+    btnSave.style.display = 'inline-block';
+    btnCancel.style.display = 'inline-block';
+  }
+
+  function saveNote(id, e) {
+    e.stopPropagation();
+    const ta = document.getElementById('note-edit-' + id);
+    const book = books.find(b => b.id === id);
+    if (book) { book.note = ta.value; save(); }
+    render();
+  }
+
+  function cancelEdit(id, e) {
+    e.stopPropagation();
+    render();
+  }
+
+  function askDelete(id, e) {
+    e.stopPropagation();
+    document.getElementById('del-confirm-' + id).classList.add('visible');
+    document.getElementById('btn-delete-' + id).style.display = 'none';
+  }
+
+  function cancelDelete(id, e) {
+    e.stopPropagation();
+    document.getElementById('del-confirm-' + id).classList.remove('visible');
+    document.getElementById('btn-delete-' + id).style.display = 'inline-block';
+  }
+
+  function confirmDelete(id, e) {
+    e.stopPropagation();
+    books = books.filter(b => b.id !== id);
+    if (openCard === id) openCard = null;
+    save();
+    render();
+  }
+
+  // ── Export / Import ──────────────────────────────
+  let importBuffer = [];
+
+  function exportData() {
+    if (books.length === 0) { showToast('Nothing to export yet.', true); return; }
+    const date = new Date().toISOString().split('T')[0];
+    const blob = new Blob([JSON.stringify(books, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `reading-journal-${date}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast(`Exported ${books.length} book${books.length === 1 ? '' : 's'}.`);
+  }
+
+  function triggerImport() {
+    document.getElementById('import-file-input').value = '';
+    document.getElementById('import-file-input').click();
+  }
+
+  function handleImportFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!Array.isArray(data)) throw new Error('Not an array');
+        importBuffer = data;
+        document.getElementById('import-count').textContent = data.length;
+        document.getElementById('import-modal-overlay').classList.add('open');
+      } catch {
+        showToast('Invalid file — expected a journal JSON export.', true);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function doImport(mode) {
+    if (mode === 'replace') {
+      books = importBuffer;
+    } else {
+      const existingIds = new Set(books.map(b => b.id));
+      const newBooks = importBuffer.filter(b => !existingIds.has(b.id));
+      books = [...books, ...newBooks];
+      const skipped = importBuffer.length - newBooks.length;
+      closeImportModal();
+      save(); render();
+      showToast(`Added ${newBooks.length} book${newBooks.length === 1 ? '' : 's'}${skipped ? `, skipped ${skipped} duplicate${skipped === 1 ? '' : 's'}` : ''}.`);
+      return;
+    }
+    closeImportModal();
+    save(); render();
+    showToast(`Imported ${books.length} book${books.length === 1 ? '' : 's'}.`);
+  }
+
+  function closeImportModal() {
+    document.getElementById('import-modal-overlay').classList.remove('open');
+    importBuffer = [];
+  }
+
+  function handleImportOverlayClick(e) {
+    if (e.target === document.getElementById('import-modal-overlay')) closeImportModal();
+  }
+
+  let toastTimer;
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '');
+    clearTimeout(toastTimer);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { t.classList.add('show'); });
+    });
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── End Export / Import ───────────────────────────
+
+  let editingId = null;
+
+  function openEditModal(id, e) {
+    e.stopPropagation();
+    const book = books.find(b => b.id === id);
+    if (!book) return;
+    editingId = id;
+    document.getElementById('e-title').value = book.title || '';
+    document.getElementById('e-author').value = book.author || '';
+    document.getElementById('e-dateRead').value = book.dateRead || '';
+    document.getElementById('e-pubDate').value = book.pubDate || '';
+    document.getElementById('e-format').value = book.format || 'Listened';
+    document.getElementById('e-type').value = book.type || 'Fiction';
+    document.getElementById('edit-modal-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('e-title').focus(), 100);
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-modal-overlay').classList.remove('open');
+    document.getElementById('edit-del-confirm').classList.remove('visible');
+    document.getElementById('edit-del-btn').style.display = 'inline-block';
+    editingId = null;
+  }
+
+  function handleEditOverlayClick(e) {
+    if (e.target === document.getElementById('edit-modal-overlay')) closeEditModal();
+  }
+
+  function saveEdit() {
+    const book = books.find(b => b.id === editingId);
+    if (!book) return;
+    const title = document.getElementById('e-title').value.trim();
+    if (!title) { document.getElementById('e-title').focus(); return; }
+    book.title = title;
+    book.author = document.getElementById('e-author').value.trim();
+    book.dateRead = document.getElementById('e-dateRead').value;
+    book.pubDate = document.getElementById('e-pubDate').value;
+    book.format = document.getElementById('e-format').value;
+    book.type = document.getElementById('e-type').value;
+    save();
+    closeEditModal();
+    render();
+  }
+
+  function askEditDelete() {
+    document.getElementById('edit-del-confirm').classList.add('visible');
+    document.getElementById('edit-del-btn').style.display = 'none';
+  }
+
+  function cancelEditDelete() {
+    document.getElementById('edit-del-confirm').classList.remove('visible');
+    document.getElementById('edit-del-btn').style.display = 'inline-block';
+  }
+
+  function confirmEditDelete() {
+    books = books.filter(b => b.id !== editingId);
+    if (openCard === editingId) openCard = null;
+    save();
+    closeEditModal();
+    render();
+  }
+
+  function openModal() {
+    document.getElementById('f-dateRead').value = new Date().toISOString().split('T')[0];
+    document.getElementById('modal-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('f-title').focus(), 100);
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    ['f-title','f-author','f-pubDate'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-format').value = 'Listened';
+    document.getElementById('f-type').value = 'Fiction';
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  function addBook() {
+    const title = document.getElementById('f-title').value.trim();
+    const author = document.getElementById('f-author').value.trim();
+    if (!title) { document.getElementById('f-title').focus(); return; }
+    const book = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+      title,
+      author,
+      dateRead: document.getElementById('f-dateRead').value,
+      pubDate: document.getElementById('f-pubDate').value,
+      format: document.getElementById('f-format').value,
+      type: document.getElementById('f-type').value,
+      note: ''
+    };
+    books.push(book);
+    save();
+    closeModal();
+    openCard = book.id;
+    render();
+    // scroll to new card
+    setTimeout(() => {
+      const el = document.getElementById('card-' + book.id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  }
+
+  function setRating(id, val, e) {
+    e.stopPropagation();
+    const book = books.find(b => b.id === id);
+    if (!book) return;
+    book.rating = (book.rating === val && val !== 0) ? 0 : val;
+    save();
+
+    // Update star widget in-place
+    const widget = document.getElementById('stars-' + id);
+    if (widget) {
+      const rating = book.rating;
+      widget.querySelectorAll('.star').forEach((s, i) => {
+        s.classList.remove('lit', 'hover');
+        if (i < rating) s.classList.add('lit');
+      });
+      const clearBtn = document.getElementById('star-clear-' + id);
+      if (clearBtn) clearBtn.className = 'star-clear' + (rating ? ' visible' : '');
+
+      // Animate the clicked star
+      if (val > 0) {
+        const star = widget.querySelectorAll('.star')[val - 1];
+        if (star) {
+          star.classList.remove('star-pop');
+          void star.offsetWidth;
+          star.classList.add('star-pop');
+          star.addEventListener('animationend', () => star.classList.remove('star-pop'), { once: true });
+        }
+      }
+    }
+
+    // Update the collapsed rating cell in-place
+    const card = document.getElementById('card-' + id);
+    if (card) {
+      const cell = card.querySelector('.book-rating-cell');
+      if (cell) {
+        if (book.rating) {
+          cell.className = 'book-rating-cell';
+          cell.innerHTML = `<span class="r-star">★</span><span class="r-num">${book.rating}</span>`;
+        } else {
+          cell.className = 'book-rating-cell unrated';
+          cell.textContent = '—';
+        }
+      }
+    }
+
+    renderStats();
+  }
+
+  function hoverStars(id, val) {
+    const widget = document.getElementById('stars-' + id);
+    if (!widget) return;
+    widget.querySelectorAll('.star').forEach((s, i) => {
+      s.classList.remove('lit', 'hover');
+      if (i < val) s.classList.add('hover');
+    });
+  }
+
+  function unhoverStars(id) {
+    const book = books.find(b => b.id === id);
+    if (!book) return;
+    const widget = document.getElementById('stars-' + id);
+    if (!widget) return;
+    const rating = book.rating || 0;
+    widget.querySelectorAll('.star').forEach((s, i) => {
+      s.classList.remove('hover');
+      s.classList.toggle('lit', i < rating);
+    });
+  }
+
+  function toggleFilter(type) {
+    typeFilter = typeFilter === type ? null : type;
+    render();
+  }
+
+  function onSearch() {
+    searchQuery = document.getElementById('search-input').value;
+    document.getElementById('search-clear').classList.toggle('visible', searchQuery.length > 0);
+    render();
+  }
+
+  function clearSearch() {
+    searchQuery = '';
+    document.getElementById('search-input').value = '';
+    document.getElementById('search-clear').classList.remove('visible');
+    render();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); closeEditModal(); closeImportModal(); }
+  });
+
+  render();
+</script>
+</body>
+</html>
