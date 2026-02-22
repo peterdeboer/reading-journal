@@ -1150,9 +1150,9 @@
 
   function setSort(col) {
     if (sortCol === col) sortDir *= -1;
-    else { sortCol = col; sortDir = -1; }
+    else { sortCol = col; sortDir = col === 'title' || col === 'author' ? 1 : -1; }
     render();
-  }
+}
 
   function getSorted() {
     let filtered = books;
