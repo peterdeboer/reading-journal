@@ -1121,7 +1121,7 @@
     rating: row.rating,
     note: row.note
 }));
-    showToast('loaded, first id: ' + (books[0] ? books[0].id : 'none'));
+  
     render();
   }
 
@@ -1307,7 +1307,6 @@
 
  function toggleCard(id) {
     openCard = openCard === id ? null : id;
-    showToast('card: ' + id + ' books: ' + books.length + ' match: ' + !!books.find(b => b.id === id));
     render();
 }
 
