@@ -1294,10 +1294,11 @@
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  function toggleCard(id) {
+ function toggleCard(id) {
     openCard = openCard === id ? null : id;
+    showToast('card: ' + id + ' books: ' + books.length + ' match: ' + !!books.find(b => b.id === id));
     render();
-  }
+}
 
   function startEdit(id, e) {
     e.stopPropagation();
