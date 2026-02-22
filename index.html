@@ -1111,6 +1111,7 @@
     // Map book_id → id for internal use, strip user_id
     isLoading = false;
     books = (data || []).map(({ book_id, user_id, ...rest }) => ({ id: book_id, ...rest }));
+    showToast('loaded, first id: ' + (books[0] ? books[0].id : 'none'));
     render();
   }
 
