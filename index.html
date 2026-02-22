@@ -1036,6 +1036,7 @@
   let searchQuery = '';
   let typeFilter = null;
   let currentUser = null;
+  let isLoading = false;
 
   // Check session on load
   sb.auth.getSession().then(({ data: { session } }) => {
@@ -1097,6 +1098,8 @@
   // ── Data loading / saving ─────────────────────────
 
   async function loadBooks() {
+    if (isLoading) return;
+    isLoading = true;
     const { data, error } = await sb
       .from('books')
       .select('*')
@@ -1106,6 +1109,7 @@
       return;
     }
     // Map book_id → id for internal use, strip user_id
+    isLoading = false;
     books = (data || []).map(({ book_id, user_id, ...rest }) => ({ id: book_id, ...rest }));
     render();
   }
