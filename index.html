@@ -1102,6 +1102,7 @@
   async function loadBooks() {
     if (isLoading) return;
     isLoading = true;
+    document.getElementById('books-list').innerHTML = '<div class="empty-state"><p style="font-style:italic;color:var(--text-dim)">Loading…</p></div>';
     const { data, error } = await sb
       .from('books')
       .select('*')
