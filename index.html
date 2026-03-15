@@ -1157,6 +1157,11 @@
     if (error) showToast('Delete error: ' + error.message, true);
   }
 
+  //rating color  helper function
+  function ratingColor(type) {
+  return type === 'Fiction' ? '#7a8a9a' : type === 'Non-fiction' ? 'var(--green)' : 'var(--amber)';
+}
+
   // ── Sort / filter ─────────────────────────────────
 
   function setSort(col) {
@@ -1234,16 +1239,16 @@
   }
 
   // Build the layered star HTML for the panel widget
-  function buildStarsHtml(bookId, rating) {
+  function buildStarsHtml(bookId, rating, type) {
     const r = parseFloat(rating) || 0;
     const stars = Array.from({length: 10}, (_, i) => {
       const clip = starClip(i, r);
       return `<span class="star-wrap" id="star-${bookId}-${i}" data-val="${i+1}"
         onclick="setRating('${bookId}', ${i+1}, event)"
-        onmouseenter="hoverStars('${bookId}', ${i+1})"
+      onmouseenter="hoverStars('${bookId}', ${i+1}, '${type}')"
         onmouseleave="unhoverStars('${bookId}')">
         <span class="star-char star-empty">★</span>
-        <span class="star-char star-fill" style="clip-path: inset(0 ${clip} 0 0)">★</span>
+       <span class="star-char star-fill" style="clip-path: inset(0 ${clip} 0 0); color:${ratingColor(type)}">★</span>
       </span>`;
     }).join('');
     const clearVisible = r > 0 ? 'visible' : '';
@@ -1251,14 +1256,14 @@
   }
 
   // Update star DOM in-place
-  function updateStarDom(bookId, rating) {
+  function updateStarDom(bookId, rating, type) {
     const r = parseFloat(rating) || 0;
     for (let i = 0; i < 10; i++) {
       const wrap = document.getElementById(`star-${bookId}-${i}`);
       if (!wrap) continue;
       const fill = wrap.querySelector('.star-fill');
       fill.style.clipPath = `inset(0 ${starClip(i, r)} 0 0)`;
-      fill.style.color = 'var(--amber)';
+    fill.style.color = ratingColor(type);
       wrap.classList.remove('hovering');
     }
     const clearBtn = document.getElementById(`star-clear-${bookId}`);
@@ -1317,7 +1322,7 @@
       const r = parseFloat(book.rating) || 0;
       const rStr = fmtRating(r);
       const ratingCell = r
-        ? `<div class="book-rating-cell"><span class="r-star">★</span><span class="r-num">${rStr}</span></div>`
+        ? `<div class="book-rating-cell"><span class="r-star" style="color:${ratingColor(book.type)}">★</span><span class="r-num">${rStr}</span></div>`
         : `<div class="book-rating-cell unrated">—</div>`;
       return `
       <div class="book-card ${isOpen ? 'open' : ''}" id="card-${book.id}">
@@ -1336,7 +1341,7 @@
           <div class="book-panel-inner">
             <div class="star-section">
               <div class="star-label">Rating</div>
-              <div class="star-widget" id="stars-${book.id}">${buildStarsHtml(book.id, r)}</div>
+              <div class="star-widget" id="stars-${book.id}">${buildStarsHtml(book.id, r, book.type)}</div>
             </div>
             <div>
               <div class="note-label">Notes · <span style="color:var(--text-dim);font-style:italic;font-size:0.8rem;text-transform:none;letter-spacing:0">${esc(book.format || 'Read')}</span></div>
@@ -1617,7 +1622,7 @@
     save([book]); // fire and forget
 
     // Update star DOM in-place
-    updateStarDom(id, book.rating);
+    updateStarDom(id, book.rating, book.type);
 
     // Animate the clicked star-wrap
     if (val > 0) {
@@ -1638,7 +1643,7 @@
         const r = parseFloat(book.rating) || 0;
         if (r) {
           cell.className = 'book-rating-cell';
-          cell.innerHTML = `<span class="r-star">★</span><span class="r-num">${fmtRating(r)}</span>`;
+          cell.innerHTML = `<span class="r-star" style="color:${ratingColor(book.type)}">★</span><span class="r-num">${fmtRating(r)}</span>`;
         } else {
           cell.className = 'book-rating-cell unrated';
           cell.textContent = '—';
@@ -1649,17 +1654,17 @@
     renderStats();
   }
 
- function hoverStars(id, val) {
+ function hoverStars(id, val, type) {
     for (let i = 0; i < 10; i++) {
       const wrap = document.getElementById(`star-${id}-${i}`);
       if (!wrap) continue;
       const fill = wrap.querySelector('.star-fill');
       if (i < val - 1) {
         fill.style.clipPath = 'inset(0 0% 0 0)';
-        fill.style.color = 'var(--amber-light)';
+        fill.style.color = ratingColor(type);
       } else if (i === val - 1) {
         fill.style.clipPath = 'inset(0 50% 0 0)';
-        fill.style.color = 'var(--amber-light)';
+        fill.style.color = ratingColor(type);
       } else {
         fill.style.clipPath = 'inset(0 100% 0 0)';
         fill.style.color = 'var(--amber)';
@@ -1670,7 +1675,7 @@
   function unhoverStars(id) {
     const book = books.find(b => b.id === id);
     if (!book) return;
-    updateStarDom(id, book.rating);
+    updateStarDom(id, book.rating, book.type);
   }
 
   function toggleFilter(type) {
