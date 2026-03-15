@@ -1606,18 +1606,12 @@
     const current = parseFloat(book.rating) || 0;
     const half = val - 0.5;
 
-    /////
     if (current === val) {
-  // whole → half
-  book.rating = half;
-} else if (current === half) {
-  // half → whole
-  book.rating = val;
-} else {
-  // anything else → whole
-  book.rating = val;
-
-    
+      book.rating = half;
+    } else if (current === half) {
+      book.rating = val;
+    } else {
+      book.rating = half;
     }
 
     save([book]); // fire and forget
