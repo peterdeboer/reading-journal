@@ -33,7 +33,7 @@
     font-family: 'Crimson Pro', Georgia, serif;
     font-size: 17px;
     min-height: 100vh;
-    background-image: 
+    background-image:
       radial-gradient(ellipse 70% 50% at 12% 0%, #3a280a50 0%, transparent 100%),
       radial-gradient(ellipse 60% 40% at 88% 8%, #1a2a1a30 0%, transparent 100%),
       radial-gradient(ellipse 80% 60% at 50% 45%, #251a0820 0%, transparent 100%),
@@ -74,12 +74,6 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
-  }
-
-  .book-count {
-    font-style: italic;
-    color: var(--text-dim);
-    font-size: 0.95rem;
   }
 
   .btn-add {
@@ -222,7 +216,7 @@
   .book-card:hover { border-left-color: var(--amber); }
   .book-card.open { border-left-color: var(--amber); }
 
-  /* Star pulse animation */
+  /* Star pop animation */
   @keyframes starPop {
     0%   { transform: scale(1); }
     40%  { transform: scale(1.45); }
@@ -347,28 +341,50 @@
     align-items: center;
     gap: 0.1rem;
   }
-  .star-widget .star {
-    font-size: 1.3rem;
+
+  /* Layered star: empty base + clipped fill on top */
+  .star-wrap {
+    position: relative;
+    display: inline-block;
     cursor: pointer;
-    color: var(--border-light);
-    transition: color 0.1s, transform 0.1s;
+    font-size: 1.3rem;
     line-height: 1;
     user-select: none;
+    transition: transform 0.1s;
   }
-  .star-widget .star.lit { color: var(--amber); }
-  .star-widget .star.hover { color: var(--amber-light); transform: scale(1.15); }
-  .star-widget .star-clear {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    cursor: pointer;
-    margin-left: 0.6rem;
-    font-style: italic;
-    font-family: 'Crimson Pro', serif;
-    transition: color 0.15s;
+  .star-wrap:hover { transform: scale(1.15); }
+  .star-char {
+    display: block;
+  }
+  .star-empty {
+    color: var(--border-light);
+  }
+  .star-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: var(--amber);
+    overflow: hidden;
+    transition: clip-path 0.1s;
+  }
+  .star-wrap.hovering .star-fill { color: var(--amber-light); }
+
+  /* Clear button styled as a skinny button */
+  .star-clear {
     display: none;
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--text-dim);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    margin-left: 0.7rem;
+    padding: 0.15rem 0.55rem;
+    transition: all 0.15s;
   }
-  .star-widget .star-clear.visible { display: inline; }
-  .star-widget .star-clear:hover { color: var(--cream-dim); }
+  .star-clear.visible { display: inline-block; }
+  .star-clear:hover { border-color: var(--text-dim); color: var(--text); }
 
   .book-edit-icon {
     color: var(--text-dim);
@@ -615,12 +631,12 @@
     text-transform: uppercase;
     color: var(--text-dim);
   }
- .stat-divider {
+  .stat-divider {
     width: 1px;
     height: 0.7rem;
     background: var(--border-light);
     align-self: center;
-}
+  }
 
   .btn-icon {
     background: none;
@@ -638,7 +654,6 @@
   .btn-icon:hover { border-color: var(--amber); color: var(--amber); }
   .btn-icon svg { width: 15px; height: 15px; }
 
-  /* Import toast */
   .toast {
     position: fixed;
     bottom: 2rem;
@@ -661,11 +676,9 @@
 
   @media (max-width: 700px) {
     header, main { padding-left: 1.5rem; padding-right: 1.5rem; }
-    /*.sort-bar, .book-row { grid-template-columns: 2fr 1fr 0.5fr; }*/
-   .sort-bar, .book-row { grid-template-columns: 2fr 1fr 0.8fr 1.6rem; }
-   .book-author-cell, .book-pubdate-cell, .book-type-cell { display: none; }
-   .sort-btn:nth-child(2), .sort-btn:nth-child(4), .sort-btn:nth-child(5) { display: none; }
-    
+    .sort-bar, .book-row { grid-template-columns: 2fr 1fr 0.8fr 1.6rem; }
+    .book-author-cell, .book-pubdate-cell, .book-type-cell { display: none; }
+    .sort-btn:nth-child(2), .sort-btn:nth-child(4), .sort-btn:nth-child(5) { display: none; }
     .form-row { grid-template-columns: 1fr; }
     .stats-bar { padding-left: 1.5rem; padding-right: 1.5rem; gap: 1.5rem; }
   }
@@ -704,7 +717,6 @@
     transition: color 0.15s;
   }
 
-  /* Stats bar centered */
   .stats-bar {
     padding: 0.6rem 2rem;
     border-bottom: 1px solid var(--border);
@@ -1050,7 +1062,7 @@
     }
   });
 
-  // React to auth changes (e.g. magic link redirect)
+  // React to auth changes
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && !currentUser) {
       currentUser = session.user;
@@ -1107,30 +1119,27 @@
       .from('books')
       .select('*')
       .eq('user_id', currentUser.id);
+    isLoading = false;
     if (error) {
       showToast('Could not load books: ' + error.message, true);
       return;
     }
-    // Map book_id → id for internal use, strip user_id
-    isLoading = false;
-       books = (data || []).map(row => ({
-    id: row.book_id,
-    title: row.title,
-    author: row.author,
-    dateRead: row.dateRead,
-    pubDate: row.pubDate,
-    format: row.format,
-    type: row.type,
-    rating: row.rating,
-    note: row.note
-}));
-  
+    books = (data || []).map(row => ({
+      id: row.book_id,
+      title: row.title,
+      author: row.author,
+      dateRead: row.dateRead,
+      pubDate: row.pubDate,
+      format: row.format,
+      type: row.type,
+      rating: row.rating !== null ? parseFloat(row.rating) : null,
+      note: row.note
+    }));
     render();
   }
 
   async function save(booksToSave) {
     if (!currentUser) return;
-    // Map id → book_id for Supabase, add user_id
     const rows = (booksToSave || books).map(({ id, ...rest }) => ({
       book_id: id,
       user_id: currentUser.id,
@@ -1154,7 +1163,7 @@
     if (sortCol === col) sortDir *= -1;
     else { sortCol = col; sortDir = col === 'title' || col === 'author' ? 1 : -1; }
     render();
-}
+  }
 
   function getSorted() {
     let filtered = books;
@@ -1170,8 +1179,8 @@
     }
     return [...filtered].sort((a, b) => {
       if (sortCol === 'rating') {
-        const ra = parseInt(a.rating) || 0;
-        const rb = parseInt(b.rating) || 0;
+        const ra = parseFloat(a.rating) || 0;
+        const rb = parseFloat(b.rating) || 0;
         if (ra === 0 && rb === 0) return 0;
         if (ra === 0) return 1;
         if (rb === 0) return -1;
@@ -1193,7 +1202,7 @@
     const thisYear = new Date().getFullYear().toString();
     const rated = books.filter(b => b.rating);
     const avgRating = rated.length
-      ? (rated.reduce((s, b) => s + (b.rating || 0), 0) / rated.length).toFixed(1)
+      ? (rated.reduce((s, b) => s + (parseFloat(b.rating) || 0), 0) / rated.length).toFixed(1)
       : '—';
     document.getElementById('stat-total').textContent = books.length;
     document.getElementById('stat-year').textContent = books.filter(b => (b.dateRead || '').startsWith(thisYear)).length;
@@ -1208,6 +1217,52 @@
     const [y, m, day] = d.split('-');
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return `${months[parseInt(m)-1]} ${parseInt(day)}, ${y}`;
+  }
+
+  // Format rating for display: 7 → "7", 7.5 → "7.5"
+  function fmtRating(r) {
+    if (!r) return null;
+    const n = parseFloat(r);
+    return Number.isInteger(n) ? String(n) : n.toFixed(1);
+  }
+
+  // Return clip-path right-side percentage for a star at index i given rating r
+  function starClip(i, r) {
+    if (r >= i + 1) return '0%';
+    if (r >= i + 0.5) return '50%';
+    return '100%';
+  }
+
+  // Build the layered star HTML for the panel widget
+  function buildStarsHtml(bookId, rating) {
+    const r = parseFloat(rating) || 0;
+    const stars = Array.from({length: 10}, (_, i) => {
+      const clip = starClip(i, r);
+      return `<span class="star-wrap" id="star-${bookId}-${i}" data-val="${i+1}"
+        onclick="setRating('${bookId}', ${i+1}, event)"
+        onmouseenter="hoverStars('${bookId}', ${i+1})"
+        onmouseleave="unhoverStars('${bookId}')">
+        <span class="star-char star-empty">★</span>
+        <span class="star-char star-fill" style="clip-path: inset(0 ${clip} 0 0)">★</span>
+      </span>`;
+    }).join('');
+    const clearVisible = r > 0 ? 'visible' : '';
+    return stars + `<button class="star-clear ${clearVisible}" id="star-clear-${bookId}" onclick="setRating('${bookId}', 0, event)">clear</button>`;
+  }
+
+  // Update star DOM in-place
+  function updateStarDom(bookId, rating) {
+    const r = parseFloat(rating) || 0;
+    for (let i = 0; i < 10; i++) {
+      const wrap = document.getElementById(`star-${bookId}-${i}`);
+      if (!wrap) continue;
+      const fill = wrap.querySelector('.star-fill');
+      fill.style.clipPath = `inset(0 ${starClip(i, r)} 0 0)`;
+      fill.style.color = 'var(--amber)';
+      wrap.classList.remove('hovering');
+    }
+    const clearBtn = document.getElementById(`star-clear-${bookId}`);
+    if (clearBtn) clearBtn.className = 'star-clear' + (r > 0 ? ' visible' : '');
   }
 
   function render() {
@@ -1259,13 +1314,11 @@
     list.innerHTML = sorted.map(book => {
       const isOpen = openCard === book.id;
       const noteEmpty = !book.note || book.note.trim() === '';
-      const rating = book.rating || 0;
-      const ratingCell = rating
-        ? `<div class="book-rating-cell"><span class="r-star">★</span><span class="r-num">${rating}</span></div>`
+      const r = parseFloat(book.rating) || 0;
+      const rStr = fmtRating(r);
+      const ratingCell = r
+        ? `<div class="book-rating-cell"><span class="r-star">★</span><span class="r-num">${rStr}</span></div>`
         : `<div class="book-rating-cell unrated">—</div>`;
-      const starsHtml = Array.from({length:10}, (_,i) =>
-        `<span class="star ${i < rating ? 'lit' : ''}" data-val="${i+1}" onclick="setRating('${book.id}', ${i+1}, event)" onmouseenter="hoverStars('${book.id}', ${i+1})" onmouseleave="unhoverStars('${book.id}')">★</span>`
-      ).join('') + `<span class="star-clear ${rating ? 'visible' : ''}" id="star-clear-${book.id}" onclick="setRating('${book.id}', 0, event)">clear</span>`;
       return `
       <div class="book-card ${isOpen ? 'open' : ''}" id="card-${book.id}">
         <div class="book-row" onclick="toggleCard('${book.id}')">
@@ -1283,7 +1336,7 @@
           <div class="book-panel-inner">
             <div class="star-section">
               <div class="star-label">Rating</div>
-              <div class="star-widget" id="stars-${book.id}">${starsHtml}</div>
+              <div class="star-widget" id="stars-${book.id}">${buildStarsHtml(book.id, r)}</div>
             </div>
             <div>
               <div class="note-label">Notes · <span style="color:var(--text-dim);font-style:italic;font-size:0.8rem;text-transform:none;letter-spacing:0">${esc(book.format || 'Read')}</span></div>
@@ -1308,10 +1361,10 @@
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
- function toggleCard(id) {
+  function toggleCard(id) {
     openCard = openCard === id ? null : id;
     render();
-}
+  }
 
   function startEdit(id, e) {
     e.stopPropagation();
@@ -1392,7 +1445,6 @@
 
   async function doImport(mode) {
     if (mode === 'replace') {
-      // Delete all existing books from Supabase first
       await sb.from('books').delete().eq('user_id', currentUser.id);
       books = importBuffer;
       await save();
@@ -1498,7 +1550,6 @@
   // ── Add book modal ────────────────────────────────
 
   function openModal() {
-    //document.getElementById('f-dateRead').value = new Date().toISOString().split('T')[0]
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -1545,69 +1596,84 @@
   }
 
   // ── Rating ────────────────────────────────────────
+  // Click cycle per star: unset/other → whole → half → clear (0)
 
   function setRating(id, val, e) {
     e.stopPropagation();
     const book = books.find(b => b.id === id);
     if (!book) return;
-    book.rating = (book.rating === val && val !== 0) ? 0 : val;
-    save([book]); // fire and forget — UI updates immediately
 
-    const widget = document.getElementById('stars-' + id);
-    if (widget) {
-      const rating = book.rating;
-      widget.querySelectorAll('.star').forEach((s, i) => {
-        s.classList.remove('lit', 'hover');
-        if (i < rating) s.classList.add('lit');
-      });
-      const clearBtn = document.getElementById('star-clear-' + id);
-      if (clearBtn) clearBtn.className = 'star-clear' + (rating ? ' visible' : '');
-      if (val > 0) {
-        const star = widget.querySelectorAll('.star')[val - 1];
-        if (star) {
-          star.classList.remove('star-pop');
-          void star.offsetWidth;
-          star.classList.add('star-pop');
-          star.addEventListener('animationend', () => star.classList.remove('star-pop'), { once: true });
-        }
+    const current = parseFloat(book.rating) || 0;
+    const half = val - 0.5;
+
+    /////
+    if (current === val) {
+  // whole → half
+  book.rating = half;
+} else if (current === half) {
+  // half → whole
+  book.rating = val;
+} else {
+  // anything else → whole
+  book.rating = val;
+}
+    
+    }
+
+    save([book]); // fire and forget
+
+    // Update star DOM in-place
+    updateStarDom(id, book.rating);
+
+    // Animate the clicked star-wrap
+    if (val > 0) {
+      const wrap = document.getElementById(`star-${id}-${val - 1}`);
+      if (wrap) {
+        wrap.classList.remove('star-pop');
+        void wrap.offsetWidth;
+        wrap.classList.add('star-pop');
+        wrap.addEventListener('animationend', () => wrap.classList.remove('star-pop'), { once: true });
       }
     }
 
+    // Update collapsed rating cell in-place
     const card = document.getElementById('card-' + id);
     if (card) {
       const cell = card.querySelector('.book-rating-cell');
       if (cell) {
-        if (book.rating) {
+        const r = parseFloat(book.rating) || 0;
+        if (r) {
           cell.className = 'book-rating-cell';
-          cell.innerHTML = `<span class="r-star">★</span><span class="r-num">${book.rating}</span>`;
+          cell.innerHTML = `<span class="r-star">★</span><span class="r-num">${fmtRating(r)}</span>`;
         } else {
           cell.className = 'book-rating-cell unrated';
           cell.textContent = '—';
         }
       }
     }
+
     renderStats();
   }
 
   function hoverStars(id, val) {
-    const widget = document.getElementById('stars-' + id);
-    if (!widget) return;
-    widget.querySelectorAll('.star').forEach((s, i) => {
-      s.classList.remove('lit', 'hover');
-      if (i < val) s.classList.add('hover');
-    });
+    for (let i = 0; i < 10; i++) {
+      const wrap = document.getElementById(`star-${id}-${i}`);
+      if (!wrap) continue;
+      const fill = wrap.querySelector('.star-fill');
+      if (i < val) {
+        fill.style.clipPath = 'inset(0 0% 0 0)';
+        fill.style.color = 'var(--amber-light)';
+      } else {
+        fill.style.clipPath = 'inset(0 100% 0 0)';
+        fill.style.color = 'var(--amber)';
+      }
+    }
   }
 
   function unhoverStars(id) {
     const book = books.find(b => b.id === id);
     if (!book) return;
-    const widget = document.getElementById('stars-' + id);
-    if (!widget) return;
-    const rating = book.rating || 0;
-    widget.querySelectorAll('.star').forEach((s, i) => {
-      s.classList.remove('hover');
-      s.classList.toggle('lit', i < rating);
-    });
+    updateStarDom(id, book.rating);
   }
 
   function toggleFilter(type) {
