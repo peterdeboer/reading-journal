@@ -1649,13 +1649,16 @@
     renderStats();
   }
 
-  function hoverStars(id, val) {
+ function hoverStars(id, val) {
     for (let i = 0; i < 10; i++) {
       const wrap = document.getElementById(`star-${id}-${i}`);
       if (!wrap) continue;
       const fill = wrap.querySelector('.star-fill');
-      if (i < val) {
+      if (i < val - 1) {
         fill.style.clipPath = 'inset(0 0% 0 0)';
+        fill.style.color = 'var(--amber-light)';
+      } else if (i === val - 1) {
+        fill.style.clipPath = 'inset(0 50% 0 0)';
         fill.style.color = 'var(--amber-light)';
       } else {
         fill.style.clipPath = 'inset(0 100% 0 0)';
